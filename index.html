@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhoonMark - Seu Hub de Bookmarklets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #8b5cf6;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+            overflow: hidden;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .animate-fade-in-up { 
+            animation: fadeInUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; 
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s infinite ease-in-out;
+        }
+        
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-light {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .transition-smooth {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .menu-panel { 
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+        }
+        
+        .menu-panel-open { 
+            transform: translateX(0); 
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .menu-panel-closed { 
+            transform: translateX(100%); 
+        }
+        
+        .scroll-custom::-webkit-scrollbar { 
+            width: 6px; 
+        }
+        
+        .scroll-custom::-webkit-scrollbar-track { 
+            background: rgba(30, 41, 59, 0.5); 
+            border-radius: 10px;
+        }
+        
+        .scroll-custom::-webkit-scrollbar-thumb { 
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            border-radius: 10px; 
+        }
+        
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(14, 165, 233, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            visibility: hidden;
+            min-width: 280px;
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(30, 41, 59, 0.9) 100%);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 12px;
+            padding: 16px 20px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            bottom: 50px;
+        }
+        
+        .star-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .star-icon.saved { 
+            color: #facc15;
+            filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.5));
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+        
+        .site-card {
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .site-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(14, 165, 233, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .input-modern {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .input-modern:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+        }
+        
+        .tab-active {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .js-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        .edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .edit-modal-content {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="text-white overflow-hidden h-screen">
+
+    <div id="landing-page" class="w-full h-full flex flex-col items-center p-6">
+        <div class="text-center pt-12 animate-fade-in-up">
+            <h1 class="text-5xl font-bold bg-gradient-to-r from-sky-400 to-purple-500 bg-clip-text text-transparent animate-pulse-slow">PhoonMark</h1>
+            <p class="text-slate-400 mt-3 text-lg">O Hub que te ajuda</p>
+        </div>
+        
+        <div id="url-form" class="w-full max-w-md mt-12 animate-fade-in-up" style="animation-delay: 0.1s">
+            <div class="relative">
+                <input type="text" id="url-input" placeholder="Cole um link ou digite um endereço" required class="w-full input-modern rounded-xl py-4 px-5 text-white focus:outline-none transition-smooth">
+                <button type="button" id="url-submit-btn" class="absolute right-2 top-1/2 -translate-y-1/2 btn-primary rounded-xl p-3 transition-smooth">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-4 max-w-md text-center animate-fade-in-up" style="animation-delay: 0.2s">Atenção: sites com proteções de segurança podem não carregar.</p>
+
+        <div class="w-full max-w-md mt-10 flex-1 overflow-hidden flex flex-col animate-fade-in-up" style="animation-delay: 0.3s">
+            <div class="flex glass rounded-xl p-1 mb-4">
+                <button id="recents-tab" class="tab-btn flex-1 py-3 text-center font-semibold rounded-lg transition-smooth tab-active">Recentes</button>
+                <button id="saved-tab" class="tab-btn flex-1 py-3 text-center font-semibold rounded-lg transition-smooth text-slate-400">Salvos</button>
+            </div>
+            <div id="recent-sites-list" class="flex-1 overflow-y-auto scroll-custom space-y-3 pr-2"></div>
+            <div id="saved-sites-list" class="flex-1 overflow-y-auto scroll-custom space-y-3 pr-2 hidden"></div>
+        </div>
+    </div>
+
+    <div id="browser-view" class="w-full h-full flex flex-col hidden">
+        <header id="browser-header" class="flex items-center justify-between glass p-3 gap-3 z-10">
+             <button id="home-btn" class="p-2 rounded-xl glass-light hover:bg-slate-700/50 transition-smooth">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+             </button>
+             <p id="url-display" class="flex-1 text-center text-sm text-slate-300 truncate px-2"></p>
+             <button id="save-site-star-btn" class="p-2 rounded-xl glass-light hover:bg-slate-700/50 transition-smooth">
+                <svg class="star-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+             </button>
+        </header>
+
+        <div class="relative flex-1">
+             <div id="loader-overlay" class="absolute inset-0 bg-slate-900/90 flex items-center justify-center z-20 transition-opacity duration-300">
+                <div class="loader"></div>
+            </div>
+            <iframe id="content-frame" class="w-full h-full border-0"></iframe>
+        </div>
+
+        <button id="menu-toggle-btn" class="fixed bottom-6 right-6 btn-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center z-40">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/>
+            </svg>
+        </button>
+    </div>
+    
+    <div id="menu-panel" class="menu-panel menu-panel-closed fixed top-0 right-0 h-full w-full max-w-sm bg-slate-900/90 backdrop-blur-xl z-50 flex flex-col">
+        <div class="flex items-center justify-between p-5 border-b border-slate-700/50">
+            <h2 class="text-xl font-semibold bg-gradient-to-r from-sky-400 to-purple-500 bg-clip-text text-transparent">Bookmarks</h2>
+            <button id="close-menu-btn" class="p-2 rounded-xl glass-light hover:bg-slate-700/50 transition-smooth">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        
+        <div id="bookmarks-list" class="flex-grow overflow-y-auto p-4 space-y-3 scroll-custom"></div>
+        
+        <div class="p-4 border-t border-slate-700/50 glass-light">
+            <form id="add-bookmark-form">
+                <h3 class="font-semibold mb-3 text-slate-300">Adicionar novo Bookmark</h3>
+                <input type="text" id="bookmark-name" placeholder="Nome do Bookmark" class="w-full input-modern rounded-xl p-3 mb-3 focus:outline-none" required>
+                <input type="text" id="bookmark-url" placeholder="URL ou código javascript:..." class="w-full input-modern rounded-xl p-3 mb-4 focus:outline-none" required>
+                <button type="submit" class="w-full btn-primary font-bold py-3 px-4 rounded-xl transition-smooth">Salvar Bookmark</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="edit-bookmark-modal" class="edit-modal">
+        <div class="edit-modal-content glass">
+            <h3 class="text-xl font-semibold mb-4">Editar Bookmark</h3>
+            <form id="edit-bookmark-form">
+                <input type="hidden" id="edit-bookmark-index">
+                <input type="text" id="edit-bookmark-name" placeholder="Nome do Bookmark" class="w-full input-modern rounded-xl p-3 mb-3 focus:outline-none" required>
+                <input type="text" id="edit-bookmark-url" placeholder="URL ou código javascript:..." class="w-full input-modern rounded-xl p-3 mb-4 focus:outline-none" required>
+                <div class="flex gap-3">
+                    <button type="button" id="cancel-edit-btn" class="flex-1 py-3 px-4 rounded-xl border border-slate-600 hover:bg-slate-700/50 transition-smooth">Cancelar</button>
+                    <button type="submit" class="flex-1 btn-primary font-bold py-3 px-4 rounded-xl transition-smooth">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="menu-overlay" class="fixed inset-0 bg-black/60 z-30 hidden transition-opacity duration-300 backdrop-blur-sm"></div>
+    <div id="toast-notification" class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const $ = (selector) => document.querySelector(selector);
+            
+            const landingPage = $('#landing-page'), browserView = $('#browser-view');
+            const urlForm = $('#url-form'), urlInput = $('#url-input'), urlSubmitBtn = $('#url-submit-btn');
+            const contentFrame = $('#content-frame'), loaderOverlay = $('#loader-overlay');
+            const menuToggleBtn = $('#menu-toggle-btn'), closeMenuBtn = $('#close-menu-btn');
+            const menuPanel = $('#menu-panel'), menuOverlay = $('#menu-overlay');
+            const homeBtn = $('#home-btn'), saveSiteStarBtn = $('#save-site-star-btn'), urlDisplay = $('#url-display');
+            const bookmarksList = $('#bookmarks-list'), addBookmarkForm = $('#add-bookmark-form');
+            const bookmarkNameInput = $('#bookmark-name'), bookmarkUrlInput = $('#bookmark-url');
+            const recentsTab = $('#recents-tab'), savedTab = $('#saved-tab');
+            const recentSitesList = $('#recent-sites-list'), savedSitesList = $('#saved-sites-list');
+            const toast = $('#toast-notification');
+            
+            const editModal = $('#edit-bookmark-modal');
+            const editForm = $('#edit-bookmark-form');
+            const editIndexInput = $('#edit-bookmark-index');
+            const editNameInput = $('#edit-bookmark-name');
+            const editUrlInput = $('#edit-bookmark-url');
+            const cancelEditBtn = $('#cancel-edit-btn');
+
+            let savedSites = [], bookmarks = [], recents = [];
+            const MAX_RECENTS = 10;
+            
+            const showToast = (message) => {
+                toast.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            };
+
+            const saveData = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+            const loadData = (key) => JSON.parse(localStorage.getItem(key) || '[]');
+            
+            const executeBookmarklet = (code) => {
+                try {
+                    const frame = contentFrame;
+                    const frameWindow = frame.contentWindow;
+                    const frameDoc = frame.contentDocument || frameWindow.document;
+
+                   
+                    try {
+                        frameWindow.eval(code);
+                        return true;
+                    } catch (e1) {
+                       
+                        const script = frameDoc.createElement('script');
+                        script.textContent = code;
+                        frameDoc.head.appendChild(script).remove();
+                        return true;
+                    }
+                } catch (e) {
+                    console.error("Erro de segurança ao tentar executar o bookmarklet:", e);
+                    return false;
+                }
+            };
+            
+            const addDefaultBookmarklets = () => {
+                const defaultBookmarks = [
+                    { name: "UnBlockCopy - Desbloquear Cópia", url: "javascript:(function(){['copy','cut','paste','selectstart','mousedown','contextmenu'].forEach(function(e){document.addEventListener(e,function(t){t.stopPropagation()},!0)});document.querySelectorAll('*').forEach(el => { el.style.userSelect = 'auto'; el.onselectstart = null; el.onmousedown = null; });})()" },
+                    { name: "View Password - Mostrar Senhas", url: "javascript:document.querySelectorAll('input[type=password]').forEach(p => p.type = 'text');" },
+                    { name: "Dark Mode - Modo Escuro", url: "javascript:(function(){var d=document.body.style;d.filter?d.filter='':d.filter='invert(1) hue-rotate(180deg)';d.backgroundColor=d.filter?'#121212':'';})();" }
+                ];
+
+                defaultBookmarks.forEach(bm => {
+                    if (!bookmarks.some(existing => existing.name === bm.name)) {
+                        bookmarks.push(bm);
+                    }
+                });
+                saveData('phoon_bookmarks', bookmarks);
+            };
+
+            const loadAllData = () => {
+                savedSites = loadData('phoon_saved_sites');
+                bookmarks = loadData('phoon_bookmarks');
+                recents = loadData('phoon_recents');
+                
+                if (bookmarks.length === 0) {
+                    addDefaultBookmarklets();
+                }
+            };
+            
+            const addRecent = (url) => {
+                recents = recents.filter(site => site.url !== url);
+                recents.unshift({ url, name: url.replace(/^https?:\/\//, '').split('/')[0] });
+                if (recents.length > MAX_RECENTS) recents = recents.slice(0, MAX_RECENTS);
+                saveData('phoon_recents', recents);
+            };
+
+            const renderList = (container, items, template, emptyMessage) => {
+                container.innerHTML = items.length === 0 ? `<p class="text-slate-500 text-center italic p-4">${emptyMessage}</p>` : '';
+                items.forEach((item, index) => {
+                    const el = document.createElement('div');
+                    el.innerHTML = template(item, index).trim();
+                    container.appendChild(el.firstElementChild);
+                });
+            };
+
+            const renderAllLists = () => {
+                renderList(recentSitesList, recents, item => `
+                    <div class="site-card glass p-4 rounded-xl cursor-pointer transition-smooth" data-url="${item.url}">
+                        <p class="text-slate-300 truncate">${item.name}</p>
+                    </div>`, "Nenhum site recente.");
+
+                renderList(savedSitesList, savedSites, item => `
+                    <div class="site-card glass p-4 rounded-xl cursor-pointer flex justify-between items-center transition-smooth" data-url="${item.url}">
+                        <p class="font-medium truncate flex-1">${item.name}</p>
+                        <button class="delete-saved-site-btn ml-2 p-1 rounded-lg text-slate-500 hover:bg-red-500/20 hover:text-red-400 transition-smooth" data-url="${item.url}">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></svg>
+                        </button>
+                    </div>`, "Nenhum site salvo.");
+                
+                renderList(bookmarksList, bookmarks, (item, index) => `
+                    <div class="site-card glass p-4 rounded-xl flex items-center justify-between transition-smooth relative">
+                        <div class="flex-1 overflow-hidden cursor-pointer" data-url="${item.url}">
+                            <p class="font-semibold truncate pointer-events-none">${item.name}</p>
+                            <p class="text-xs text-slate-400 truncate pointer-events-none">${item.url.startsWith('javascript:') ? 'Bookmarklet' : item.url.replace(/^https?:\/\//, '')}</p>
+                        </div>
+                        ${item.url.startsWith('javascript:') ? '<span class="js-badge">JS</span>' : ''}
+                        <div class="flex items-center ml-2">
+                            <button class="edit-bookmark-btn p-2 rounded-lg text-slate-400 hover:bg-blue-500/20 hover:text-blue-400 transition-smooth" data-index="${index}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5l4 4"/></g></svg>
+                            </button>
+                            <button class="delete-bookmark-btn p-2 rounded-lg text-slate-400 hover:bg-red-500/20 hover:text-red-400 transition-smooth" data-index="${index}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 7h16m-10 4v6m4-6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/></g></svg>
+                            </button>
+                        </div>
+                    </div>`, "Nenhum bookmark salvo.");
+            };
+
+            const updateStarIcon = () => {
+                const currentUrl = contentFrame.src;
+                const isSaved = savedSites.some(site => site.url === currentUrl);
+                const starIcon = saveSiteStarBtn.querySelector('.star-icon');
+                starIcon.classList.toggle('saved', isSaved);
+                starIcon.style.fill = isSaved ? 'currentColor' : 'none';
+            };
+
+            const navigateTo = (url) => {
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                
+                addRecent(url);
+                loaderOverlay.style.opacity = '1';
+                loaderOverlay.style.display = 'flex';
+                
+                contentFrame.sandbox = 'allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-top-navigation allow-top-navigation-by-user-activation';
+                contentFrame.src = url;
+                
+                urlDisplay.textContent = url.replace(/^https?:\/\//, '').split('/')[0];
+                renderAllLists();
+            };
+
+            const toggleMenu = (open) => {
+                menuOverlay.classList.toggle('hidden', !open);
+                menuOverlay.style.opacity = open ? '1' : '0';
+                menuPanel.classList.toggle('menu-panel-open', open);
+                menuPanel.classList.toggle('menu-panel-closed', !open);
+            };
+            
+            const startNavigation = (url) => {
+                landingPage.style.display = 'none';
+                browserView.classList.remove('hidden');
+                browserView.classList.add('flex');
+                navigateTo(url);
+            };
+
+            const goToHome = () => {
+                browserView.classList.add('hidden');
+                browserView.classList.remove('flex');
+                landingPage.style.display = 'flex';
+                urlInput.value = '';
+                contentFrame.src = 'about:blank';
+                urlDisplay.textContent = '';
+            };
+
+            const openEditModal = (index) => {
+                const bookmark = bookmarks[index];
+                editIndexInput.value = index;
+                editNameInput.value = bookmark.name;
+                editUrlInput.value = bookmark.url;
+                editModal.style.display = 'flex';
+            };
+
+            const closeEditModal = () => {
+                editModal.style.display = 'none';
+                editForm.reset();
+            };
+            
+            const submitUrl = () => {
+                const url = urlInput.value.trim();
+                if (url) {
+                    startNavigation(url);
+                }
+            };
+
+            urlSubmitBtn.addEventListener('click', submitUrl);
+            urlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    submitUrl();
+                }
+            });
+            
+            contentFrame.addEventListener('load', () => {
+                 loaderOverlay.style.opacity = '0';
+                 setTimeout(() => { loaderOverlay.style.display = 'none'; }, 300);
+                 updateStarIcon();
+            });
+            
+            menuToggleBtn.addEventListener('click', () => toggleMenu(true));
+            closeMenuBtn.addEventListener('click', () => toggleMenu(false));
+            menuOverlay.addEventListener('click', () => toggleMenu(false));
+            homeBtn.addEventListener('click', goToHome);
+
+            saveSiteStarBtn.addEventListener('click', () => {
+                const url = contentFrame.src;
+                const siteIndex = savedSites.findIndex(site => site.url === url);
+
+                if (siteIndex > -1) {
+                    savedSites.splice(siteIndex, 1);
+                    showToast("Site removido dos salvos!");
+                } else {
+                    const name = url.replace(/^https?:\/\//, '').split('/')[0];
+                    savedSites.push({ name, url });
+                    showToast("Site salvo com sucesso!");
+                }
+                saveData('phoon_saved_sites', savedSites);
+                renderAllLists();
+                updateStarIcon();
+            });
+
+            addBookmarkForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = bookmarkNameInput.value.trim();
+                const url = bookmarkUrlInput.value.trim();
+                if (name && url) {
+                    bookmarks.push({ name, url });
+                    saveData('phoon_bookmarks', bookmarks);
+                    renderAllLists();
+                    addBookmarkForm.reset();
+                    showToast("Bookmark adicionado!");
+                }
+            });
+
+            bookmarksList.addEventListener('click', (e) => {
+                const item = e.target.closest('[data-url]');
+                const deleteBtn = e.target.closest('.delete-bookmark-btn');
+                const editBtn = e.target.closest('.edit-bookmark-btn');
+                
+                if (deleteBtn || editBtn) {
+                    e.stopPropagation();
+                    if (deleteBtn) {
+                        bookmarks.splice(parseInt(deleteBtn.dataset.index, 10), 1);
+                        saveData('phoon_bookmarks', bookmarks);
+                        renderAllLists();
+                        showToast("Bookmark removido!");
+                    }
+                    if (editBtn) {
+                        openEditModal(parseInt(editBtn.dataset.index, 10));
+                    }
+                    return;
+                }
+
+                if (item) {
+                    const url = item.dataset.url;
+                    if (url.startsWith('javascript:')) {
+                        const code = decodeURIComponent(url.substring('javascript:'.length));
+                        if (executeBookmarklet(code)) {
+                            showToast("Bookmarklet executado!");
+                        } else {
+                            showToast("Falha ao executar. O site pode ter proteções.");
+                        }
+                    } else {
+                        navigateTo(url);
+                    }
+                    toggleMenu(false);
+                }
+            });
+
+            editForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(editIndexInput.value, 10);
+                const name = editNameInput.value.trim();
+                const url = editUrlInput.value.trim();
+                if (name && url) {
+                    bookmarks[index] = { name, url };
+                    saveData('phoon_bookmarks', bookmarks);
+                    renderAllLists();
+                    closeEditModal();
+                    showToast("Bookmark atualizado!");
+                }
+            });
+            
+            cancelEditBtn.addEventListener('click', closeEditModal);
+            
+            const listClickHandler = (e) => {
+                const siteCard = e.target.closest('.site-card');
+                if (siteCard) startNavigation(siteCard.dataset.url);
+            };
+
+            recentSitesList.addEventListener('click', listClickHandler);
+            savedSitesList.addEventListener('click', (e) => {
+                const deleteBtn = e.target.closest('.delete-saved-site-btn');
+                if (deleteBtn) {
+                   e.stopPropagation();
+                   savedSites = savedSites.filter(site => site.url !== deleteBtn.dataset.url);
+                   saveData('phoon_saved_sites', savedSites);
+                   renderAllLists();
+                   showToast("Site removido dos salvos!");
+                } else {
+                    listClickHandler(e);
+                }
+            });
+
+            const setActiveTab = (activeButton, inactiveButton, activeList, inactiveList) => {
+                activeButton.classList.remove('text-slate-400');
+                activeButton.classList.add('tab-active', 'text-white');
+                inactiveButton.classList.add('text-slate-400');
+                inactiveButton.classList.remove('tab-active', 'text-white');
+                activeList.classList.remove('hidden');
+                inactiveList.classList.add('hidden');
+            };
+
+            recentsTab.addEventListener('click', () => setActiveTab(recentsTab, savedTab, recentSitesList, savedSitesList));
+            savedTab.addEventListener('click', () => setActiveTab(savedTab, recentsTab, savedSitesList, recentSitesList));
+
+            loadAllData();
+            renderAllLists();
+        });
+    </script>
+</body>
+</html>
+
