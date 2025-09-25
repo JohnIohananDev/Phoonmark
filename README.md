@@ -3,7 +3,7 @@
 Uma ferramenta criada para simplificar o uso de bookmarklets em sites, principalmente pelo celular.
 A tool designed to simplify running bookmarklets on websites, especially on mobile.
 
-**Acesse a versão ao vivo | Access the live version:** [https://phoonmark.netlify.app](https://phoonmark.netlify.app)
+**Site:** [Phoonmark](https://phoonmark.netlify.app)
 
 ---
 
